@@ -109,6 +109,8 @@
   }
   .step-btn:hover { opacity: 0.9; }
   .step-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+  .step-btn-delete { background: #c0392b; }
+  .step-btn-delete:hover { opacity: 0.9; }
 
 
   /* ─── Log ─── */
@@ -378,6 +380,14 @@ function getStepStatus(stepId) {
   return 'pending';
 }
 
+function getLastDoneStepId() {
+  let lastDone = null;
+  for (const step of STEPS) {
+    if (getStepStatus(step.id) === 'done') lastDone = step.id;
+  }
+  return lastDone;
+}
+
 // ─── Load existing data ───
 async function loadExisting() {
   log('Fetching existing prophet adventures from Supabase...', 'log-info');
@@ -403,6 +413,7 @@ async function loadExisting() {
 // ─── Render Publish tab ───
 function renderPublish() {
   const el = document.getElementById('adventureList');
+  const lastDoneId = getLastDoneStepId();
 
   el.innerHTML = ADVENTURES.map(adv => {
     const stepsForAdv = advSteps[adv.readable_id] || [];
@@ -419,7 +430,9 @@ function renderPublish() {
       let badgeHtml, btnHtml;
       if (status === 'done') {
         badgeHtml = `<span class="step-badge done">Done</span>`;
-        btnHtml = '';
+        btnHtml = step.id === lastDoneId
+          ? `<button class="step-btn step-btn-delete" id="delbtn-${step.id}" onclick="deleteStep('${step.id}')">Delete</button>`
+          : '';
       } else if (status === 'locked') {
         badgeHtml = `<span class="step-badge locked">Locked</span>`;
         btnHtml = `<button class="step-btn" disabled>Publish</button>`;
@@ -518,6 +531,53 @@ async function uploadStep(stepId) {
   } catch (e) {
     if (badge) { badge.className = 'step-badge error'; badge.textContent = 'Error'; }
     if (btn) btn.disabled = false;
+    log(`Error: ${e.message}`, 'log-err');
+  }
+}
+
+// ─── Delete (rollback) a step ───
+async function deleteStep(stepId) {
+  const step = STEPS.find(s => s.id === stepId);
+  if (!step) return;
+  if (!confirm(`Delete "${step.label}" content from ${step.advId}?`)) return;
+
+  const adv = ADVENTURES.find(a => a.readable_id === step.advId);
+  const stepsForAdv = advSteps[step.advId];
+  const idx = stepsForAdv.findIndex(s => s.step.id === stepId);
+  const prevCumCount = idx > 0 ? stepsForAdv[idx - 1].cumCount : 0;
+
+  const btn = document.getElementById(`delbtn-${stepId}`);
+  if (btn) { btn.disabled = true; btn.textContent = 'Deleting...'; }
+
+  log(`Deleting ${step.label} from ${step.advId}...`, 'log-info');
+
+  try {
+    if (prevCumCount === 0) {
+      // First step of adventure — delete entire row
+      const res = await supabaseFetch(`content?readable_id=eq.${step.advId}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error(`Delete error ${res.status}: ${await res.text()}`);
+      delete advContentLengths[step.advId];
+      log(`${step.advId} deleted entirely.`, 'log-ok');
+    } else {
+      // Trim content_list to previous step's count
+      const fetchRes = await supabaseFetch(`content?readable_id=eq.${step.advId}&select=content_list`);
+      if (!fetchRes.ok) throw new Error(`Fetch error ${fetchRes.status}`);
+      const rows = await fetchRes.json();
+      const existing = (rows[0] && rows[0].content_list) || [];
+      const trimmed = existing.slice(0, prevCumCount);
+
+      const res = await supabaseFetch(`content?readable_id=eq.${step.advId}`, {
+        method: 'PATCH',
+        headers: { 'Prefer': 'return=minimal' },
+        body: JSON.stringify({ content_list: trimmed })
+      });
+      if (!res.ok) throw new Error(`Patch error ${res.status}: ${await res.text()}`);
+      advContentLengths[step.advId] = trimmed.length;
+      log(`${step.label} removed. ${step.advId} now has ${trimmed.length} items.`, 'log-ok');
+    }
+    renderPublish();
+  } catch (e) {
+    if (btn) { btn.disabled = false; btn.textContent = 'Delete'; }
     log(`Error: ${e.message}`, 'log-err');
   }
 }
