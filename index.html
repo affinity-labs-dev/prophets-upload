@@ -325,12 +325,26 @@ async function fetchModuleJSON(num) {
 }
 
 // ─── Step status logic ───
+function isAdvComplete(advId) {
+  const stepsForAdv = advSteps[advId];
+  if (!stepsForAdv || stepsForAdv.length === 0) return true;
+  const totalNeeded = stepsForAdv[stepsForAdv.length - 1].cumCount;
+  return (advContentLengths[advId] || 0) >= totalNeeded;
+}
+
 function getStepStatus(stepId) {
   const step = STEPS.find(s => s.id === stepId);
   const stepsForAdv = advSteps[step.advId];
   const idx = stepsForAdv.findIndex(s => s.step.id === stepId);
   const currentLen = advContentLengths[step.advId] || 0;
   if (currentLen >= stepsForAdv[idx].cumCount) return 'done';
+  // Lock if previous adventure is not fully complete
+  const adv = ADVENTURES.find(a => a.readable_id === step.advId);
+  if (adv.order_by > 1) {
+    const prevAdv = ADVENTURES.find(a => a.order_by === adv.order_by - 1);
+    if (prevAdv && !isAdvComplete(prevAdv.readable_id)) return 'locked';
+  }
+  // Lock if previous step within this adventure is not done
   if (idx > 0 && currentLen < stepsForAdv[idx - 1].cumCount) return 'locked';
   return 'pending';
 }
