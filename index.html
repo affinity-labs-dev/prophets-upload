@@ -127,6 +127,35 @@
   ::-webkit-scrollbar { width: 6px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: var(--dull-beige); border-radius: 3px; }
+
+  /* ─── Mobile ─── */
+  @media (max-width: 600px) {
+    body { padding: 16px 12px; }
+    .header div h1 { font-size: 20px; }
+    .adv-header { padding: 12px 14px; gap: 10px; }
+    .adv-order { width: 28px; height: 28px; font-size: 12px; }
+    .adv-title { font-size: 14px; }
+    .adv-meta { font-size: 11px; }
+    .adv-status { padding: 3px 8px; font-size: 11px; }
+
+    .step-row {
+      padding: 10px 14px;
+      flex-wrap: wrap;
+      gap: 6px 10px;
+    }
+    .step-date { width: auto; font-size: 12px; }
+    .step-label { font-size: 13px; flex: 1; min-width: 0; }
+    .step-modules { font-size: 11px; }
+    .step-badge { font-size: 11px; min-width: 60px; }
+    .step-btn {
+      padding: 10px 20px;
+      font-size: 14px;
+      width: 100%;
+      order: 5;
+    }
+
+    .log-area { padding: 12px 14px; font-size: 11px; max-height: 160px; }
+  }
 </style>
 </head>
 <body>
