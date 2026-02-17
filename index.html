@@ -43,33 +43,7 @@
   .header div h1 { font-size: 28px; font-weight: 700; margin-bottom: 4px; }
   .header div p { font-size: 14px; color: var(--dull-beige); }
 
-  /* Tabs */
-  .tabs {
-    max-width: 960px;
-    margin: 0 auto 24px;
-    display: flex;
-    gap: 4px;
-    background: var(--white);
-    border-radius: var(--radius-lg);
-    padding: 4px;
-  }
-  .tab {
-    flex: 1;
-    padding: 10px 16px;
-    border: none;
-    border-radius: var(--radius-md);
-    background: transparent;
-    font-family: inherit;
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--dull-beige);
-    cursor: pointer;
-    text-align: center;
-  }
-  .tab:hover { color: var(--brown); }
-  .tab.active { background: var(--brown); color: var(--white); }
-
-  /* ─── Publish Tab ─── */
+  /* ─── Adventures ─── */
   .adventures {
     max-width: 960px;
     margin: 0 auto 24px;
@@ -137,44 +111,6 @@
   .step-btn:disabled { opacity: 0.3; cursor: not-allowed; }
 
 
-  /* ─── Modules Tab ─── */
-  .modules-section {
-    max-width: 960px;
-    margin: 0 auto 24px;
-  }
-  .modules-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 8px;
-  }
-  .module-card {
-    background: var(--white);
-    border-radius: var(--radius-md);
-    padding: 12px 16px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-  .module-num {
-    width: 28px; height: 28px; border-radius: 50%;
-    background: var(--cream);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 12px; font-weight: 700; flex-shrink: 0;
-  }
-  .module-info { flex: 1; min-width: 0; }
-  .module-name { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .module-type { font-size: 11px; color: var(--dull-beige); }
-  .module-update-btn {
-    padding: 4px 10px; border: 1.5px solid var(--concrete-grey);
-    border-radius: var(--radius-sm); background: var(--white);
-    font-family: inherit; font-size: 11px; font-weight: 600;
-    cursor: pointer; color: var(--brown); flex-shrink: 0;
-  }
-  .module-update-btn:hover { background: var(--cream); border-color: var(--persian-orange); }
-  .module-update-btn.uploading { color: var(--persian-orange); border-color: var(--persian-orange); }
-
-  #moduleFileInput { display: none; }
-
   /* ─── Log ─── */
   .log-area {
     max-width: 960px; margin: 0 auto;
@@ -187,8 +123,6 @@
   .log-area .log-ok { color: #a6e22e; }
   .log-area .log-err { color: #f92672; }
   .log-area .log-info { color: #66d9ef; }
-
-  .hidden { display: none !important; }
 
   ::-webkit-scrollbar { width: 6px; }
   ::-webkit-scrollbar-track { background: transparent; }
@@ -204,31 +138,8 @@
   </div>
 </div>
 
-<!-- Tabs -->
-<div class="tabs">
-  <button class="tab active" onclick="switchTab('publish')">Publish Adventures</button>
-  <button class="tab" onclick="switchTab('modules')">Update Modules</button>
-</div>
-
-<!-- ═══ PUBLISH TAB ═══ -->
-<div id="publishTab">
-  <div class="adventures" id="adventureList">
-    <div style="text-align:center;padding:40px;color:var(--dull-beige);">Loading from Supabase...</div>
-  </div>
-</div>
-
-<!-- ═══ MODULES TAB ═══ -->
-<div id="modulesTab" class="hidden">
-  <div class="modules-section">
-    <div style="background:var(--white);border-radius:var(--radius-lg);padding:16px 20px;margin-bottom:16px;display:flex;align-items:center;gap:16px;">
-      <div style="flex:1">
-        <div style="font-size:14px;font-weight:600;">Module JSONs in Supabase Storage</div>
-        <div style="font-size:12px;color:var(--dull-beige);">Click "Replace" on any module to upload an updated story.json</div>
-      </div>
-      <input type="file" id="moduleFileInput" accept=".json">
-    </div>
-    <div class="modules-grid" id="modulesGrid">Loading...</div>
-  </div>
+<div class="adventures" id="adventureList">
+  <div style="text-align:center;padding:40px;color:var(--dull-beige);">Loading from Supabase...</div>
 </div>
 
 <!-- Log -->
@@ -239,23 +150,6 @@
 const SUPABASE_URL = 'https://kcgihainlnntshupiztu.supabase.co';
 const SERVICE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtjZ2loYWlubG5udHNodXBpenR1Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NDY4MzM3MywiZXhwIjoyMDcwMjU5MzczfQ.uKZEHB93aQPpb-uDtdYsWJ_0_DGPhECx1ZAUYOzCzhE';
 const STORAGE_BASE = SUPABASE_URL + '/storage/v1/object/public/prophets-modules';
-
-// ─── Module folder names (for display) ───
-const MODULE_NAMES = {
-  1:'Adam 1', 2:'Adam 2', 3:'Adam 3', 4:'Idris 1', 5:'Idris 2',
-  6:'Noah 1', 7:'Noah 2', 8:'Noah 3', 9:'Noah 4', 10:'Noah 5',
-  11:'Hud 1', 12:'Hud 2', 13:'Salih 1', 14:'Salih 2', 15:'Salih 3',
-  16:'Ibrahim 1', 17:'Ibrahim 2', 18:'Ibrahim 3', 19:'Ibrahim 4', 20:'Ibrahim 5',
-  21:'Ibrahim & Ismail 1', 22:'Ibrahim & Ismail 2', 23:'Ibrahim & Ismail 3', 24:'Ibrahim & Ismail 4', 25:'Ibrahim & Ismail 5',
-  26:'Lut 1', 27:'Lut 2', 28:'Ishaq 1', 29:'Yaqub 1', 30:'Yaqub 2',
-  31:'Yusif 1', 32:'Yusif 2', 33:'Yusif 3', 34:'Yusif 4', 35:'Yusif 5',
-  36:'Shuayb 1', 37:'Shuayb 2', 38:'Shuayb 3', 39:'Ayyub 1', 40:'Ayyub 2',
-  41:'Musa 1', 42:'Musa 2', 43:'Musa 3', 44:'Musa 4', 45:'Musa 5',
-  46:'Musa 6', 47:'Musa 7', 48:'Musa & Harun 1', 49:'Musa & Harun 2', 50:'Musa & Harun 3',
-  51:'Dawud 1', 52:'Dawud 2', 53:'Sulayman 1', 54:'Sulayman 2', 55:'Sulayman 3',
-  56:'Yunus 1', 57:'Yunus 2', 58:'Zakariyya 1', 59:'Zakariyya 2', 60:'Zakariyya 3',
-  61:'Yahya 1', 62:'Yahya 2', 63:'Maryam & Isa 1', 64:'Maryam & Isa 2'
-};
 
 // ─── Adventure metadata ───
 const ADVENTURES = [
@@ -401,8 +295,6 @@ STEPS.forEach(step => {
 
 // ─── State ───
 let advContentLengths = {};
-let currentTab = 'publish';
-let pendingModuleNum = null; // for module file picker
 
 // ─── Logging ───
 function log(msg, cls = '') {
@@ -410,16 +302,6 @@ function log(msg, cls = '') {
   const time = new Date().toLocaleTimeString();
   el.innerHTML += `<div class="${cls}">[${time}] ${msg}</div>`;
   el.scrollTop = el.scrollHeight;
-}
-
-// ─── Tab switching ───
-function switchTab(tab) {
-  currentTab = tab;
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.querySelector(`.tab[onclick*="${tab}"]`).classList.add('active');
-  document.getElementById('publishTab').classList.toggle('hidden', tab !== 'publish');
-  document.getElementById('modulesTab').classList.toggle('hidden', tab !== 'modules');
-  if (tab === 'modules') renderModules();
 }
 
 // ─── Supabase helpers ───
@@ -526,71 +408,6 @@ function renderPublish() {
   }).join('');
 
 }
-
-// ─── Render Modules tab ───
-function renderModules() {
-  const grid = document.getElementById('modulesGrid');
-  grid.innerHTML = '';
-  for (let num = 1; num <= 64; num++) {
-    const name = MODULE_NAMES[num] || `Module ${num}`;
-    grid.innerHTML += `<div class="module-card" id="mod-${num}">
-      <div class="module-num">${num}</div>
-      <div class="module-info">
-        <div class="module-name">${name}</div>
-        <div class="module-type">${num}.json</div>
-      </div>
-      <button class="module-update-btn" id="modbtn-${num}" onclick="pickModuleFile(${num})">Replace</button>
-    </div>`;
-  }
-}
-
-// ─── Module file replacement ───
-function pickModuleFile(num) {
-  pendingModuleNum = num;
-  document.getElementById('moduleFileInput').click();
-}
-
-document.getElementById('moduleFileInput').addEventListener('change', async function(e) {
-  const file = e.target.files[0];
-  if (!file || pendingModuleNum === null) return;
-  const num = pendingModuleNum;
-  pendingModuleNum = null;
-  this.value = '';
-
-  const btn = document.getElementById(`modbtn-${num}`);
-  btn.textContent = 'Uploading...';
-  btn.className = 'module-update-btn uploading';
-
-  try {
-    // Validate JSON
-    const text = await file.text();
-    JSON.parse(text);
-
-    // Upload to Storage
-    const res = await fetch(`${SUPABASE_URL}/storage/v1/object/prophets-modules/${num}.json`, {
-      method: 'POST',
-      headers: {
-        'apikey': SERVICE_KEY,
-        'Authorization': `Bearer ${SERVICE_KEY}`,
-        'Content-Type': 'application/json',
-        'x-upsert': 'true'
-      },
-      body: text
-    });
-    if (!res.ok) throw new Error(`Storage upload failed (${res.status})`);
-
-    btn.textContent = 'Updated!';
-    btn.style.color = '#4a7c3f';
-    btn.style.borderColor = '#4a7c3f';
-    log(`Module ${num} (${MODULE_NAMES[num]}) updated in Storage`, 'log-ok');
-    setTimeout(() => { btn.textContent = 'Replace'; btn.className = 'module-update-btn'; }, 2000);
-  } catch (err) {
-    btn.textContent = 'Error';
-    btn.style.color = '#c0392b';
-    log(`Error updating module ${num}: ${err.message}`, 'log-err');
-    setTimeout(() => { btn.textContent = 'Replace'; btn.className = 'module-update-btn'; }, 2000);
-  }
-});
 
 // ─── Upload (publish) a step ───
 async function uploadStep(stepId) {
