@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prophets Series - Adventure Upload</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --brown: #4D392E;
+    --persian-orange: #C99151;
+    --cream: #F4EBDB;
+    --moss-green: #959C00;
+    --moss-green-shadow: #6E7300;
+    --tweed-beige: #D7C5B6;
+    --dull-beige: #B8AA92;
+    --muted-navy: #41425E;
+    --concrete-grey: #E5E5E5;
+    --white: #FFFFFF;
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-xl: 20px;
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--brown);
+    min-height: 100vh;
+    padding: 32px;
+  }
+
+  .header {
+    max-width: 960px;
+    margin: 0 auto 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .header div h1 { font-size: 28px; font-weight: 700; margin-bottom: 4px; }
+  .header div p { font-size: 14px; color: var(--dull-beige); }
+
+  /* Tabs */
+  .tabs {
+    max-width: 960px;
+    margin: 0 auto 24px;
+    display: flex;
+    gap: 4px;
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    padding: 4px;
+  }
+  .tab {
+    flex: 1;
+    padding: 10px 16px;
+    border: none;
+    border-radius: var(--radius-md);
+    background: transparent;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--dull-beige);
+    cursor: pointer;
+    text-align: center;
+  }
+  .tab:hover { color: var(--brown); }
+  .tab.active { background: var(--brown); color: var(--white); }
+
+  /* ─── Publish Tab ─── */
+  .adventures {
+    max-width: 960px;
+    margin: 0 auto 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .adv-card {
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+  }
+  .adv-header {
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .adv-order {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: var(--cream);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700; flex-shrink: 0;
+  }
+  .adv-info { flex: 1; min-width: 0; }
+  .adv-title { font-size: 15px; font-weight: 600; }
+  .adv-meta { font-size: 12px; color: var(--dull-beige); margin-top: 2px; }
+  .adv-status {
+    padding: 4px 12px; border-radius: 100px;
+    font-size: 12px; font-weight: 600; flex-shrink: 0;
+  }
+  .adv-status.complete { background: #e8f5e1; color: #4a7c3f; }
+  .adv-status.partial { background: #fff3e0; color: var(--persian-orange); }
+  .adv-status.empty { background: var(--concrete-grey); color: var(--dull-beige); }
+
+  .step-list { border-top: 1px solid var(--concrete-grey); }
+  .step-row {
+    padding: 10px 20px 10px 66px;
+    display: flex; align-items: center; gap: 12px;
+    border-bottom: 1px solid #f5f0ea;
+  }
+  .step-row:last-child { border-bottom: none; }
+  .step-date { width: 64px; font-size: 12px; font-weight: 600; color: var(--muted-navy); flex-shrink: 0; }
+  .step-label { flex: 1; font-size: 14px; font-weight: 500; }
+  .step-modules { font-size: 12px; color: var(--dull-beige); flex-shrink: 0; }
+  .step-badge {
+    padding: 3px 10px; border-radius: 100px;
+    font-size: 11px; font-weight: 600; flex-shrink: 0;
+    min-width: 70px; text-align: center;
+  }
+  .step-badge.done { background: #e8f5e1; color: #4a7c3f; }
+  .step-badge.pending { background: var(--concrete-grey); color: var(--dull-beige); }
+  .step-badge.locked { background: #f9f6f2; color: #ccc; }
+  .step-badge.uploading { background: #fff3e0; color: var(--persian-orange); }
+  .step-badge.error { background: #fde8e8; color: #c0392b; }
+
+  .step-btn {
+    padding: 6px 14px; border: none; border-radius: var(--radius-sm);
+    background: var(--persian-orange); color: var(--white);
+    font-family: inherit; font-size: 12px; font-weight: 600;
+    cursor: pointer; flex-shrink: 0;
+  }
+  .step-btn:hover { opacity: 0.9; }
+  .step-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+
+  /* ─── Modules Tab ─── */
+  .modules-section {
+    max-width: 960px;
+    margin: 0 auto 24px;
+  }
+  .modules-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 8px;
+  }
+  .module-card {
+    background: var(--white);
+    border-radius: var(--radius-md);
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .module-num {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--cream);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; flex-shrink: 0;
+  }
+  .module-info { flex: 1; min-width: 0; }
+  .module-name { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .module-type { font-size: 11px; color: var(--dull-beige); }
+  .module-update-btn {
+    padding: 4px 10px; border: 1.5px solid var(--concrete-grey);
+    border-radius: var(--radius-sm); background: var(--white);
+    font-family: inherit; font-size: 11px; font-weight: 600;
+    cursor: pointer; color: var(--brown); flex-shrink: 0;
+  }
+  .module-update-btn:hover { background: var(--cream); border-color: var(--persian-orange); }
+  .module-update-btn.uploading { color: var(--persian-orange); border-color: var(--persian-orange); }
+
+  #moduleFileInput { display: none; }
+
+  /* ─── Log ─── */
+  .log-area {
+    max-width: 960px; margin: 0 auto;
+    background: var(--brown); border-radius: var(--radius-lg);
+    padding: 16px 20px; max-height: 200px;
+    overflow-y: auto;
+    font-family: 'Courier New', monospace;
+    font-size: 12px; color: #ccc; line-height: 1.6;
+  }
+  .log-area .log-ok { color: #a6e22e; }
+  .log-area .log-err { color: #f92672; }
+  .log-area .log-info { color: #66d9ef; }
+
+  .hidden { display: none !important; }
+
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--dull-beige); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>Prophets Series — Adventure Manager</h1>
+    <p>Manage module content and publish adventures to Supabase</p>
+  </div>
+</div>
+
+<!-- Tabs -->
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('publish')">Publish Adventures</button>
+  <button class="tab" onclick="switchTab('modules')">Update Modules</button>
+</div>
+
+<!-- ═══ PUBLISH TAB ═══ -->
+<div id="publishTab">
+  <div class="adventures" id="adventureList">
+    <div style="text-align:center;padding:40px;color:var(--dull-beige);">Loading from Supabase...</div>
+  </div>
+</div>
+
+<!-- ═══ MODULES TAB ═══ -->
+<div id="modulesTab" class="hidden">
+  <div class="modules-section">
+    <div style="background:var(--white);border-radius:var(--radius-lg);padding:16px 20px;margin-bottom:16px;display:flex;align-items:center;gap:16px;">
+      <div style="flex:1">
+        <div style="font-size:14px;font-weight:600;">Module JSONs in Supabase Storage</div>
+        <div style="font-size:12px;color:var(--dull-beige);">Click "Replace" on any module to upload an updated story.json</div>
+      </div>
+      <input type="file" id="moduleFileInput" accept=".json">
+    </div>
+    <div class="modules-grid" id="modulesGrid">Loading...</div>
+  </div>
+</div>
+
+<!-- Log -->
+<div class="log-area" id="logArea"></div>
+
+<script>
+// ─── Config ───
+const SUPABASE_URL = 'https://kcgihainlnntshupiztu.supabase.co';
+const SERVICE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtjZ2loYWlubG5udHNodXBpenR1Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NDY4MzM3MywiZXhwIjoyMDcwMjU5MzczfQ.uKZEHB93aQPpb-uDtdYsWJ_0_DGPhECx1ZAUYOzCzhE';
+const STORAGE_BASE = SUPABASE_URL + '/storage/v1/object/public/prophets-modules';
+
+// ─── Module folder names (for display) ───
+const MODULE_NAMES = {
+  1:'Adam 1', 2:'Adam 2', 3:'Adam 3', 4:'Idris 1', 5:'Idris 2',
+  6:'Noah 1', 7:'Noah 2', 8:'Noah 3', 9:'Noah 4', 10:'Noah 5',
+  11:'Hud 1', 12:'Hud 2', 13:'Salih 1', 14:'Salih 2', 15:'Salih 3',
+  16:'Ibrahim 1', 17:'Ibrahim 2', 18:'Ibrahim 3', 19:'Ibrahim 4', 20:'Ibrahim 5',
+  21:'Ibrahim & Ismail 1', 22:'Ibrahim & Ismail 2', 23:'Ibrahim & Ismail 3', 24:'Ibrahim & Ismail 4', 25:'Ibrahim & Ismail 5',
+  26:'Lut 1', 27:'Lut 2', 28:'Ishaq 1', 29:'Yaqub 1', 30:'Yaqub 2',
+  31:'Yusif 1', 32:'Yusif 2', 33:'Yusif 3', 34:'Yusif 4', 35:'Yusif 5',
+  36:'Shuayb 1', 37:'Shuayb 2', 38:'Shuayb 3', 39:'Ayyub 1', 40:'Ayyub 2',
+  41:'Musa 1', 42:'Musa 2', 43:'Musa 3', 44:'Musa 4', 45:'Musa 5',
+  46:'Musa 6', 47:'Musa 7', 48:'Musa & Harun 1', 49:'Musa & Harun 2', 50:'Musa & Harun 3',
+  51:'Dawud 1', 52:'Dawud 2', 53:'Sulayman 1', 54:'Sulayman 2', 55:'Sulayman 3',
+  56:'Yunus 1', 57:'Yunus 2', 58:'Zakariyya 1', 59:'Zakariyya 2', 60:'Zakariyya 3',
+  61:'Yahya 1', 62:'Yahya 2', 63:'Maryam & Isa 1', 64:'Maryam & Isa 2'
+};
+
+// ─── Adventure metadata ───
+const ADVENTURES = [
+  {
+    readable_id: 'prophets_1', era_id: 'prophets', order_by: 1,
+    adventure_title: 'Adam and the First Humans',
+    adventure_description: "From Adam's creation from clay to Idris's rise to the heavens - the story of humanity's first chapter.",
+    timeline: 'The Beginning', adv_design: 'bento_grid',
+    icon_url: 'https://d1bcceam8ucosn.cloudfront.net/prophets/icons/the-first-humans.png',
+    card_content: {"era_name":"Prophets","overview_text":"Discover how humanity began — from clay, to knowledge, to the first test of free will.","estimated_time":"6 min","adventure_story":"Allah creates Adam عليه السلام from clay and teaches him what even the angels do not know. But paradise comes with a test, and one mistake changes everything. From Adam's repentance to Idris عليه السلام's rise to the heavens, this is the story of how human history begins.","background_image":"https://d1bcceam8ucosn.cloudfront.net/prophets/adventures/adam.jpg"}
+  },
+  {
+    readable_id: 'prophets_2', era_id: 'prophets', order_by: 2,
+    adventure_title: 'Noah and the Great Flood',
+    adventure_description: "Nuh عليه السلام calls his people for centuries. When they refuse, the flood reshapes the world.",
+    timeline: 'c. 3000 – 2500 BCE', adv_design: 'bento_grid',
+    icon_url: 'https://d1bcceam8ucosn.cloudfront.net/prophets/icons/noah-and-the-great-flood.png',
+    card_content: {"era_name":"Prophets","overview_text":"One man builds an ark while the world laughs. Then the rain begins.","estimated_time":"5 min","adventure_story":"For centuries, Nuh عليه السلام calls his people to Allah. They mock him, ignore him, and refuse to listen. When the flood finally comes, only a small group of believers survives. This is the story of patience tested to its limit — and a second chance for humanity.","background_image":"https://d1bcceam8ucosn.cloudfront.net/prophets/adventures/noah.jpg"}
+  },
+  {
+    readable_id: 'prophets_3', era_id: 'prophets', order_by: 3,
+    adventure_title: 'Prophets of Ancient Arabia',
+    adventure_description: 'Hud and Salih عليهما السلام confront two powerful civilizations that mistake strength for invincibility.',
+    timeline: 'c. 2500 – 2000 BCE', adv_design: 'bento_grid',
+    icon_url: 'https://d1bcceam8ucosn.cloudfront.net/prophets/icons/prophets-of-ancient-arabia.png',
+    card_content: {"era_name":"Prophets","overview_text":"Two prophets face two mighty civilizations — and neither backs down.","estimated_time":"6 min","adventure_story":"The people of 'Ad tower over their land with unmatched strength, and the people of Thamud carve palaces into mountains. Hud عليه السلام and Salih عليه السلام warn them that power without faith leads to ruin. When both nations reject their prophets, Allah's response shakes the earth itself.","background_image":"https://d1bcceam8ucosn.cloudfront.net/prophets/adventures/hud.jpg"}
+  },
+  {
+    readable_id: 'prophets_4', era_id: 'prophets', order_by: 4,
+    adventure_title: 'Ibrahim - The Friend of God',
+    adventure_description: "Ibrahim عليه السلام challenges idols, survives a fire, and earns the title Khalilullah — the Friend of God.",
+    timeline: 'c. 2000 – 1900 BCE', adv_design: 'bento_grid',
+    icon_url: 'https://d1bcceam8ucosn.cloudfront.net/prophets/icons/ibrahim-the-friend-of-god.png',
+    card_content: {"era_name":"Prophets","overview_text":"A young man smashes his people's idols, walks into a blazing fire, and comes out unharmed.","estimated_time":"5 min","adventure_story":"Ibrahim عليه السلام questions everything — the stars, the moon, the sun — and finds his way to the one true God. His own father threatens him. His own king challenges him. They throw him into a fire, but Allah commands the flames to be cool and safe. This is how the Friend of God earns his title.","background_image":"https://d1bcceam8ucosn.cloudfront.net/prophets/adventures/ibrahim.jpg"}
+  },
+  {
+    readable_id: 'prophets_5', era_id: 'prophets', order_by: 5,
+    adventure_title: "Ibrahim & Ismail - A Father's Sacrifice",
+    adventure_description: 'A father and son face the ultimate test of faith - and together build the Kaaba for all of humanity.',
+    timeline: 'c. 1900 – 1800 BCE', adv_design: 'bento_grid',
+    icon_url: 'https://d1bcceam8ucosn.cloudfront.net/prophets/icons/ibrahim-and-ismail.png',
+    card_content: {"era_name":"Prophets","overview_text":"A father is asked to sacrifice his son. A son willingly agrees. Both pass the test.","estimated_time":"6 min","adventure_story":"Ibrahim عليه السلام leaves his wife Hajar and infant son Ismail عليه السلام in a barren desert with nothing but trust in Allah. Years later, a dream commands him to sacrifice the son he waited a lifetime for. Together, father and son submit — and together, they build the Kaaba as a house of worship for all of humanity.","background_image":"https://d1bcceam8ucosn.cloudfront.net/prophets/adventures/ibrahim-and-ismail.jpg"}
+  },
+  {
+    readable_id: 'prophets_6', era_id: 'prophets', order_by: 6,
+    adventure_title: "Ibrahim's Legacy",
+    adventure_description: "The prophets Lut, Ishaq, and Yaqub عليهم السلام carry Ibrahim's legacy through trials of sin, patience, and loss.",
+    timeline: 'c. 1900 – 1700 BCE', adv_design: 'bento_grid',
+    icon_url: 'https://d1bcceam8ucosn.cloudfront.net/prophets/icons/ibrahims-legacy.png',
+    card_content: {"era_name":"Prophets","overview_text":"Ibrahim's family tree stretches across generations — and so do the tests.","estimated_time":"8 min","adventure_story":"Lut عليه السلام stands alone against a city drowning in sin. Ishaq عليه السلام carries forward his father Ibrahim's mission. Yaqub عليه السلام endures the heartbreak of losing his beloved son Yusuf — and waits decades for their reunion. Three prophets, one family line, and a legacy of faith that never breaks.","background_image":"https://d1bcceam8ucosn.cloudfront.net/prophets/adventures/lut.jpg"}
+  },
+  {
+    readable_id: 'prophets_7', era_id: 'prophets', order_by: 7,
+    adventure_title: 'Yusuf - The Dreamer',
+    adventure_description: 'Follow the journey of Yusuf عليه السلام from betrayal to power in Egypt.',
+    timeline: 'c. 1700 BCE', adv_design: 'standard_6',
+    icon_url: 'https://d1bcceam8ucosn.cloudfront.net/prophets/icons/yusuf-the-dreamer.png',
+    card_content: {"era_name":"Prophets","overview_text":"Thrown into a well as a child, he rises to rule all of Egypt.","estimated_time":"5 min","adventure_story":"Yusuf عليه السلام is his father's favourite — and his brothers cannot stand it. They throw him into a well, and he is sold into slavery in Egypt. From a prison cell, his ability to interpret dreams reaches the king himself. Betrayal, temptation, and forgiveness shape the most detailed story in the entire Quran.","background_image":"https://d1bcceam8ucosn.cloudfront.net/prophets/adventures/yusuf.jpg"}
+  },
+  {
+    readable_id: 'prophets_8', era_id: 'prophets', order_by: 8,
+    adventure_title: 'Prophets of Patience',
+    adventure_description: 'Discover how Shuayb and Ayyub عليهما السلام endured hardship with unwavering faith.',
+    timeline: 'c. 1600 – 1500 BCE', adv_design: 'standard_6',
+    icon_url: 'https://d1bcceam8ucosn.cloudfront.net/prophets/icons/prophets-of-patience.png',
+    card_content: {"era_name":"Prophets","overview_text":"When life takes everything away, faith is the only thing left — and it is enough.","estimated_time":"5 min","adventure_story":"Shuayb عليه السلام confronts merchants who cheat their customers and corrupt their society. Ayyub عليه السلام loses his health, his wealth, and his children — yet never loses his trust in Allah. These prophets prove that true strength is not in what you have, but in how you hold on when it is gone.","background_image":"https://d1bcceam8ucosn.cloudfront.net/prophets/adventures/shuayb.jpg"}
+  },
+  {
+    readable_id: 'prophets_9', era_id: 'prophets', order_by: 9,
+    adventure_title: 'Musa - From the River to the Mountain',
+    adventure_description: 'Witness the early life of Musa عليه السلام from the Nile to his divine mission.',
+    timeline: 'c. 1400 – 1300 BCE', adv_design: 'standard_6',
+    icon_url: 'https://d1bcceam8ucosn.cloudfront.net/prophets/icons/musa-from-the-river.png',
+    card_content: {"era_name":"Prophets","overview_text":"A baby floats down the Nile in a basket — and grows up in the palace of the man who wants him dead.","estimated_time":"8 min","adventure_story":"Firaun orders every newborn boy killed, but Allah has other plans. Musa عليه السلام is raised inside the palace itself, flees to Madyan after an accident, and returns years later with a divine mission. From a burning bush to a staff that becomes a serpent, Allah prepares His prophet for the greatest confrontation in history.","background_image":"https://d1bcceam8ucosn.cloudfront.net/prophets/adventures/musa.jpg"}
+  },
+  {
+    readable_id: 'prophets_10', era_id: 'prophets', order_by: 10,
+    adventure_title: 'Musa & Harun - The Exodus',
+    adventure_description: 'The liberation of the Children of Israel and the trials that followed.',
+    timeline: 'c. 1300 – 1200 BCE', adv_design: 'standard_6',
+    icon_url: 'https://d1bcceam8ucosn.cloudfront.net/prophets/icons/musa-and-harun-the-exodus.png',
+    card_content: {"era_name":"Prophets","overview_text":"The sea splits, a nation escapes, and the real journey begins.","estimated_time":"8 min","adventure_story":"Musa عليه السلام and Harun عليه السلام lead the Children of Israel out of Egypt. The sea parts, Firaun's army drowns, and freedom finally arrives. But freedom brings its own tests — a golden calf, broken commandments, and forty years of wandering. Liberation is only the beginning.","background_image":"https://d1bcceam8ucosn.cloudfront.net/prophets/adventures/musa-and-harun.jpg"}
+  },
+  {
+    readable_id: 'prophets_11', era_id: 'prophets', order_by: 11,
+    adventure_title: 'The Kingdom - Dawud & Sulayman',
+    adventure_description: 'Two prophets who ruled as kings with justice, wisdom, and divine power.',
+    timeline: 'c. 1000 – 900 BCE', adv_design: 'standard_6',
+    icon_url: 'https://d1bcceam8ucosn.cloudfront.net/prophets/icons/the-kingdom-dawud-and-sulayman.png',
+    card_content: {"era_name":"Prophets","overview_text":"A shepherd defeats a giant. His son commands the wind and speaks to animals.","estimated_time":"8 min","adventure_story":"Dawud عليه السلام slays Jalut with a single stone and becomes king of Israel. Allah gives him the Zabur and a voice that makes the mountains sing His praise. His son Sulayman عليه السلام inherits a kingdom unlike any before — ruling over jinn, birds, and the wind itself. Power and worship exist side by side.","background_image":"https://d1bcceam8ucosn.cloudfront.net/prophets/adventures/dawud.jpg"}
+  },
+  {
+    readable_id: 'prophets_12', era_id: 'prophets', order_by: 12,
+    adventure_title: 'Prophets of Mercy',
+    adventure_description: "Stories of Yunus and Zakariyya عليهما السلام and the reach of Allah's mercy.",
+    timeline: 'c. 800 – 1 BCE', adv_design: 'standard_6',
+    icon_url: 'https://d1bcceam8ucosn.cloudfront.net/prophets/icons/prophets-of-mercy.png',
+    card_content: {"era_name":"Prophets","overview_text":"One prophet calls from inside a whale. Another prays for a child he thought would never come.","estimated_time":"6 min","adventure_story":"Yunus عليه السلام leaves his people in frustration and ends up swallowed by a great fish. In total darkness, his prayer becomes one of the most repeated duas in Islam. Zakariyya عليه السلام grows old without an heir — until Allah answers his quiet prayer with a miracle. Both prophets learn that Allah's mercy reaches everywhere.","background_image":"https://d1bcceam8ucosn.cloudfront.net/prophets/adventures/yunus.jpg"}
+  },
+  {
+    readable_id: 'prophets_13', era_id: 'prophets', order_by: 13,
+    adventure_title: 'The Road to Isa',
+    adventure_description: 'From Yahya to the miraculous birth of Isa عليه السلام through Maryam.',
+    timeline: 'c. 1 BCE – 33 CE', adv_design: 'standard_6',
+    icon_url: 'https://d1bcceam8ucosn.cloudfront.net/prophets/icons/the-road-to-isa.png',
+    card_content: {"era_name":"Prophets","overview_text":"A miraculous birth, a voice from the cradle, and the final prophet before Muhammad ﷺ.","estimated_time":"6 min","adventure_story":"Yahya عليه السلام grows up wise beyond his years — the first to bear his name and the last prophet before Isa. Maryam, chosen above all women, receives news that shakes her world: a son with no father. When the people accuse her, baby Isa عليه السلام speaks from the cradle to defend his mother. The stage is set for the final revelation.","background_image":"https://d1bcceam8ucosn.cloudfront.net/prophets/adventures/yahya.jpg"}
+  }
+];
+
+// ─── Upload steps ───
+const STEPS = [
+  { id: 'adam',            advId: 'prophets_1',  label: 'Adam',              date: 'Feb 20', folders: [1,2,3] },
+  { id: 'idris',           advId: 'prophets_1',  label: 'Idris',             date: 'Feb 21', folders: [4,5] },
+  { id: 'nuh',             advId: 'prophets_2',  label: 'Nuh',               date: 'Feb 23', folders: [6,7,8,9,10] },
+  { id: 'hud',             advId: 'prophets_3',  label: 'Hud',               date: 'Feb 25', folders: [11,12] },
+  { id: 'salih',           advId: 'prophets_3',  label: 'Salih',             date: 'Feb 26', folders: [13,14,15] },
+  { id: 'ibrahim',         advId: 'prophets_4',  label: 'Ibrahim',           date: 'Feb 28', folders: [16,17,18,19,20] },
+  { id: 'ibrahim_ismail',  advId: 'prophets_5',  label: 'Ibrahim & Ismail',  date: 'Feb 28', folders: [21,22,23,24,25] },
+  { id: 'lut',             advId: 'prophets_6',  label: 'Lut',               date: 'Mar 1',  folders: [26,27] },
+  { id: 'ishaq',           advId: 'prophets_6',  label: 'Ishaq',             date: 'Mar 3',  folders: [28] },
+  { id: 'yaqub',           advId: 'prophets_6',  label: 'Yaqub',             date: 'Mar 4',  folders: [29,30] },
+  { id: 'yusuf',           advId: 'prophets_7',  label: 'Yusuf',             date: 'Mar 6',  folders: [31,32,33,34,35] },
+  { id: 'shuayb',          advId: 'prophets_8',  label: 'Shuayb',            date: 'Mar 8',  folders: [36,37,38] },
+  { id: 'ayyub',           advId: 'prophets_8',  label: 'Ayyub',             date: 'Mar 9',  folders: [39,40] },
+  { id: 'musa1',           advId: 'prophets_9',  label: 'Musa (Part 1)',     date: 'Mar 11', folders: [41,42,43,44,45] },
+  { id: 'musa_harun',      advId: 'prophets_10', label: 'Musa & Harun',      date: 'Mar 11', folders: [46,47,48,49,50] },
+  { id: 'dawud',           advId: 'prophets_11', label: 'Dawud',              date: 'Mar 13', folders: [51,52] },
+  { id: 'sulayman',        advId: 'prophets_11', label: 'Sulayman',           date: 'Mar 14', folders: [53,54,55] },
+  { id: 'yunus',           advId: 'prophets_12', label: 'Yunus',              date: 'Mar 16', folders: [56,57] },
+  { id: 'zakariyya',       advId: 'prophets_12', label: 'Zakariyya',          date: 'Mar 17', folders: [58,59,60] },
+  { id: 'yahya',           advId: 'prophets_13', label: 'Yahya',              date: 'Mar 19', folders: [61,62] },
+  { id: 'isa',             advId: 'prophets_13', label: 'Isa',                date: 'Mar 20', folders: [63,64] }
+];
+
+// Pre-compute cumulative counts per adventure
+const advSteps = {};
+STEPS.forEach(step => {
+  if (!advSteps[step.advId]) advSteps[step.advId] = [];
+  const prev = advSteps[step.advId];
+  const prevCount = prev.length > 0 ? prev[prev.length - 1].cumCount : 0;
+  prev.push({ step, cumCount: prevCount + step.folders.length });
+});
+
+// ─── State ───
+let advContentLengths = {};
+let currentTab = 'publish';
+let pendingModuleNum = null; // for module file picker
+
+// ─── Logging ───
+function log(msg, cls = '') {
+  const el = document.getElementById('logArea');
+  const time = new Date().toLocaleTimeString();
+  el.innerHTML += `<div class="${cls}">[${time}] ${msg}</div>`;
+  el.scrollTop = el.scrollHeight;
+}
+
+// ─── Tab switching ───
+function switchTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelector(`.tab[onclick*="${tab}"]`).classList.add('active');
+  document.getElementById('publishTab').classList.toggle('hidden', tab !== 'publish');
+  document.getElementById('modulesTab').classList.toggle('hidden', tab !== 'modules');
+  if (tab === 'modules') renderModules();
+}
+
+// ─── Supabase helpers ───
+async function supabaseFetch(path, opts = {}) {
+  const url = `${SUPABASE_URL}/rest/v1/${path}`;
+  const headers = {
+    'apikey': SERVICE_KEY,
+    'Authorization': `Bearer ${SERVICE_KEY}`,
+    'Content-Type': 'application/json',
+    ...opts.headers
+  };
+  return fetch(url, { ...opts, headers });
+}
+
+// Fetch a module JSON from Storage (public URL, cache-bust)
+async function fetchModuleJSON(num) {
+  const url = `${STORAGE_BASE}/${num}.json?t=${Date.now()}`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`Module ${num}.json not found in Storage (${res.status})`);
+  return res.json();
+}
+
+// ─── Step status logic ───
+function getStepStatus(stepId) {
+  const step = STEPS.find(s => s.id === stepId);
+  const stepsForAdv = advSteps[step.advId];
+  const idx = stepsForAdv.findIndex(s => s.step.id === stepId);
+  const currentLen = advContentLengths[step.advId] || 0;
+  if (currentLen >= stepsForAdv[idx].cumCount) return 'done';
+  if (idx > 0 && currentLen < stepsForAdv[idx - 1].cumCount) return 'locked';
+  return 'pending';
+}
+
+// ─── Load existing data ───
+async function loadExisting() {
+  log('Fetching existing prophet adventures from Supabase...', 'log-info');
+  try {
+    const res = await supabaseFetch('content?era_id=eq.prophets&select=readable_id,content_list');
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    advContentLengths = {};
+    data.forEach(row => {
+      advContentLengths[row.readable_id] = (row.content_list && row.content_list.length) || 0;
+    });
+    const summary = Object.entries(advContentLengths)
+      .filter(([, len]) => len > 0)
+      .map(([id, len]) => `${id}(${len})`)
+      .join(', ');
+    log(`Existing: ${summary || 'none'}`, 'log-ok');
+    renderPublish();
+  } catch (e) {
+    log(`Error: ${e.message}`, 'log-err');
+  }
+}
+
+// ─── Render Publish tab ───
+function renderPublish() {
+  const el = document.getElementById('adventureList');
+
+  el.innerHTML = ADVENTURES.map(adv => {
+    const stepsForAdv = advSteps[adv.readable_id] || [];
+    const totalFolders = stepsForAdv.length > 0 ? stepsForAdv[stepsForAdv.length - 1].cumCount : 0;
+    const currentLen = advContentLengths[adv.readable_id] || 0;
+
+    let advStatus, advStatusLabel;
+    if (currentLen >= totalFolders) { advStatus = 'complete'; advStatusLabel = 'Complete'; }
+    else if (currentLen > 0) { advStatus = 'partial'; advStatusLabel = `${currentLen}/${totalFolders} modules`; }
+    else { advStatus = 'empty'; advStatusLabel = 'Not started'; }
+
+    const stepRows = stepsForAdv.map(({ step }) => {
+      const status = getStepStatus(step.id);
+      let badgeHtml, btnHtml;
+      if (status === 'done') {
+        badgeHtml = `<span class="step-badge done">Done</span>`;
+        btnHtml = '';
+      } else if (status === 'locked') {
+        badgeHtml = `<span class="step-badge locked">Locked</span>`;
+        btnHtml = `<button class="step-btn" disabled>Publish</button>`;
+      } else {
+        badgeHtml = `<span class="step-badge pending" id="badge-${step.id}">Pending</span>`;
+        btnHtml = `<button class="step-btn" id="btn-${step.id}" onclick="uploadStep('${step.id}')">Publish</button>`;
+      }
+
+      return `<div class="step-row" id="row-${step.id}">
+        <span class="step-date">${step.date}</span>
+        <span class="step-label">${step.label}</span>
+        <span class="step-modules">${step.folders.length} module${step.folders.length > 1 ? 's' : ''}</span>
+        ${badgeHtml}
+        ${btnHtml}
+      </div>`;
+    }).join('');
+
+    return `<div class="adv-card">
+      <div class="adv-header">
+        <div class="adv-order">${adv.order_by}</div>
+        <div class="adv-info">
+          <div class="adv-title">${adv.adventure_title}</div>
+          <div class="adv-meta">${adv.readable_id} · ${totalFolders} modules · ${adv.timeline}</div>
+        </div>
+        <span class="adv-status ${advStatus}">${advStatusLabel}</span>
+      </div>
+      <div class="step-list">${stepRows}</div>
+    </div>`;
+  }).join('');
+
+}
+
+// ─── Render Modules tab ───
+function renderModules() {
+  const grid = document.getElementById('modulesGrid');
+  grid.innerHTML = '';
+  for (let num = 1; num <= 64; num++) {
+    const name = MODULE_NAMES[num] || `Module ${num}`;
+    grid.innerHTML += `<div class="module-card" id="mod-${num}">
+      <div class="module-num">${num}</div>
+      <div class="module-info">
+        <div class="module-name">${name}</div>
+        <div class="module-type">${num}.json</div>
+      </div>
+      <button class="module-update-btn" id="modbtn-${num}" onclick="pickModuleFile(${num})">Replace</button>
+    </div>`;
+  }
+}
+
+// ─── Module file replacement ───
+function pickModuleFile(num) {
+  pendingModuleNum = num;
+  document.getElementById('moduleFileInput').click();
+}
+
+document.getElementById('moduleFileInput').addEventListener('change', async function(e) {
+  const file = e.target.files[0];
+  if (!file || pendingModuleNum === null) return;
+  const num = pendingModuleNum;
+  pendingModuleNum = null;
+  this.value = '';
+
+  const btn = document.getElementById(`modbtn-${num}`);
+  btn.textContent = 'Uploading...';
+  btn.className = 'module-update-btn uploading';
+
+  try {
+    // Validate JSON
+    const text = await file.text();
+    JSON.parse(text);
+
+    // Upload to Storage
+    const res = await fetch(`${SUPABASE_URL}/storage/v1/object/prophets-modules/${num}.json`, {
+      method: 'POST',
+      headers: {
+        'apikey': SERVICE_KEY,
+        'Authorization': `Bearer ${SERVICE_KEY}`,
+        'Content-Type': 'application/json',
+        'x-upsert': 'true'
+      },
+      body: text
+    });
+    if (!res.ok) throw new Error(`Storage upload failed (${res.status})`);
+
+    btn.textContent = 'Updated!';
+    btn.style.color = '#4a7c3f';
+    btn.style.borderColor = '#4a7c3f';
+    log(`Module ${num} (${MODULE_NAMES[num]}) updated in Storage`, 'log-ok');
+    setTimeout(() => { btn.textContent = 'Replace'; btn.className = 'module-update-btn'; }, 2000);
+  } catch (err) {
+    btn.textContent = 'Error';
+    btn.style.color = '#c0392b';
+    log(`Error updating module ${num}: ${err.message}`, 'log-err');
+    setTimeout(() => { btn.textContent = 'Replace'; btn.className = 'module-update-btn'; }, 2000);
+  }
+});
+
+// ─── Upload (publish) a step ───
+async function uploadStep(stepId) {
+  const step = STEPS.find(s => s.id === stepId);
+  if (!step) return;
+
+  const adv = ADVENTURES.find(a => a.readable_id === step.advId);
+  const currentLen = advContentLengths[step.advId] || 0;
+
+  const badge = document.getElementById(`badge-${stepId}`);
+  const btn = document.getElementById(`btn-${stepId}`);
+  if (btn) btn.disabled = true;
+  if (badge) { badge.className = 'step-badge uploading'; badge.textContent = 'Publishing...'; }
+
+  log(`Publishing ${step.label} → ${step.advId}...`, 'log-info');
+
+  try {
+    // 1. Fetch module JSONs from Storage
+    const newItems = [];
+    for (const num of step.folders) {
+      log(`  Fetching module ${num}.json from Storage...`, '');
+      const json = await fetchModuleJSON(num);
+      if (Array.isArray(json)) newItems.push(...json);
+      else newItems.push(json);
+    }
+    log(`  ${newItems.length} content items from ${step.label}`, 'log-info');
+
+    // 2. Build content_list (existing + new)
+    let contentList;
+    if (currentLen > 0) {
+      log(`  Fetching existing content_list (${currentLen} items)...`, '');
+      const fetchRes = await supabaseFetch(`content?readable_id=eq.${step.advId}&select=content_list`);
+      if (!fetchRes.ok) throw new Error(`Fetch error ${fetchRes.status}`);
+      const rows = await fetchRes.json();
+      contentList = [...((rows[0] && rows[0].content_list) || []), ...newItems];
+    } else {
+      contentList = newItems;
+    }
+
+    // 3. Upsert
+    const payload = {
+      readable_id: adv.readable_id,
+      era_id: adv.era_id,
+      adventure_title: adv.adventure_title,
+      adventure_description: adv.adventure_description,
+      order_by: adv.order_by,
+      timeline: adv.timeline,
+      adv_design: adv.adv_design,
+      icon_url: adv.icon_url,
+      content_list: contentList,
+      card_content: adv.card_content
+    };
+
+    const res = await supabaseFetch('content', {
+      method: 'POST',
+      headers: { 'Prefer': 'resolution=merge-duplicates' },
+      body: JSON.stringify(payload)
+    });
+    if (!res.ok) throw new Error(`Supabase error ${res.status}: ${await res.text()}`);
+
+    advContentLengths[step.advId] = contentList.length;
+    log(`${step.label} published! ${step.advId} now has ${contentList.length} items.`, 'log-ok');
+    renderPublish();
+
+  } catch (e) {
+    if (badge) { badge.className = 'step-badge error'; badge.textContent = 'Error'; }
+    if (btn) btn.disabled = false;
+    log(`Error: ${e.message}`, 'log-err');
+  }
+}
+
+// ─── Init ───
+loadExisting();
+</script>
+</body>
+</html>
