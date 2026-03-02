@@ -186,7 +186,7 @@ const STORAGE_BASE = SUPABASE_URL + '/storage/v1/object/public/prophets-modules'
 const ADVENTURES = [
   {
     readable_id: 'prophets_1', era_id: 'prophets', order_by: 1,
-    adventure_title: 'Adam and the First Humans',
+    adventure_title: 'Adam and Idris \r\nThe First Prophets',
     adventure_description: "From Adam's creation from clay to Idris's rise to the heavens - the story of humanity's first chapter.",
     timeline: 'The Beginning', adv_design: 'bento_grid',
     icon_url: 'https://d1bcceam8ucosn.cloudfront.net/prophets/icons/the-first-humans.png',
@@ -194,7 +194,7 @@ const ADVENTURES = [
   },
   {
     readable_id: 'prophets_2', era_id: 'prophets', order_by: 2,
-    adventure_title: 'Noah and the Great Flood',
+    adventure_title: 'Noah and\r\nthe Great Flood',
     adventure_description: "Nuh عليه السلام calls his people for centuries. When they refuse, the flood reshapes the world.",
     timeline: 'c. 3000 – 2500 BCE', adv_design: 'bento_grid',
     icon_url: 'https://d1bcceam8ucosn.cloudfront.net/prophets/icons/noah-and-the-great-flood.png',
@@ -210,7 +210,7 @@ const ADVENTURES = [
   },
   {
     readable_id: 'prophets_4', era_id: 'prophets', order_by: 4,
-    adventure_title: 'Ibrahim - The Friend of God',
+    adventure_title: 'Ibrahim\r\nThe Friend of God',
     adventure_description: "Ibrahim عليه السلام challenges idols, survives a fire, and earns the title Khalilullah — the Friend of God.",
     timeline: 'c. 2000 – 1900 BCE', adv_design: 'bento_grid',
     icon_url: 'https://d1bcceam8ucosn.cloudfront.net/prophets/icons/ibrahim-the-friend-of-god.png',
@@ -218,7 +218,7 @@ const ADVENTURES = [
   },
   {
     readable_id: 'prophets_5', era_id: 'prophets', order_by: 5,
-    adventure_title: "Ibrahim & Ismail - A Father's Sacrifice",
+    adventure_title: "Ibrahim & Ismail\r\nA Father's Sacrifice",
     adventure_description: 'A father and son face the ultimate test of faith - and together build the Kaaba for all of humanity.',
     timeline: 'c. 1900 – 1800 BCE', adv_design: 'bento_grid',
     icon_url: 'https://d1bcceam8ucosn.cloudfront.net/prophets/icons/ibrahim-and-ismail.png',
@@ -226,7 +226,7 @@ const ADVENTURES = [
   },
   {
     readable_id: 'prophets_6', era_id: 'prophets_2', order_by: 6,
-    adventure_title: "Ibrahim's Legacy",
+    adventure_title: "Lut & Yaqub\r\nIbrahim's Legacy",
     adventure_description: "The prophets Lut, Ishaq, and Yaqub عليهم السلام carry Ibrahim's legacy through trials of sin, patience, and loss.",
     timeline: 'c. 1900 – 1700 BCE', adv_design: 'bento_grid',
     icon_url: 'https://d1bcceam8ucosn.cloudfront.net/prophets/icons/ibrahims-legacy.png',
@@ -234,7 +234,7 @@ const ADVENTURES = [
   },
   {
     readable_id: 'prophets_7', era_id: 'prophets_2', order_by: 7,
-    adventure_title: 'Yusuf - The Dreamer',
+    adventure_title: 'Yusuf\r\nThe Dreamer',
     adventure_description: 'Follow the journey of Yusuf عليه السلام from betrayal to power in Egypt.',
     timeline: 'c. 1700 BCE', adv_design: 'standard_6',
     icon_url: 'https://d1bcceam8ucosn.cloudfront.net/prophets/icons/yusuf-the-dreamer.png',
@@ -250,7 +250,7 @@ const ADVENTURES = [
   },
   {
     readable_id: 'prophets_9', era_id: 'prophets_2', order_by: 9,
-    adventure_title: 'Musa - From the River to the Mountain',
+    adventure_title: 'Musa\r\nFrom the River to the Mountain',
     adventure_description: 'Witness the early life of Musa عليه السلام from the Nile to his divine mission.',
     timeline: 'c. 1400 – 1300 BCE', adv_design: 'standard_6',
     icon_url: 'https://d1bcceam8ucosn.cloudfront.net/prophets/icons/musa-from-the-river.png',
@@ -258,7 +258,7 @@ const ADVENTURES = [
   },
   {
     readable_id: 'prophets_10', era_id: 'prophets_2', order_by: 10,
-    adventure_title: 'Musa & Harun - The Exodus',
+    adventure_title: 'Musa & Harun\r\nThe Exodus',
     adventure_description: 'The liberation of the Children of Israel and the trials that followed.',
     timeline: 'c. 1300 – 1200 BCE', adv_design: 'standard_6',
     icon_url: 'https://d1bcceam8ucosn.cloudfront.net/prophets/icons/musa-and-harun-the-exodus.png',
@@ -266,7 +266,7 @@ const ADVENTURES = [
   },
   {
     readable_id: 'prophets_11', era_id: 'prophets_3', order_by: 11,
-    adventure_title: 'The Kingdom - Dawud & Sulayman',
+    adventure_title: 'Dawud & Sulayman\r\nThe Kingdom',
     adventure_description: 'Two prophets who ruled as kings with justice, wisdom, and divine power.',
     timeline: 'c. 1000 – 900 BCE', adv_design: 'standard_6',
     icon_url: 'https://d1bcceam8ucosn.cloudfront.net/prophets/icons/the-kingdom-dawud-and-sulayman.png',
@@ -529,13 +529,17 @@ async function uploadStep(stepId) {
     });
     log(`  Normalized ${contentList.length} module IDs (media_1 → media_${contentList.length})`, 'log-info');
 
-    // 3. Upsert
+    // 3. Compute era-relative order_by (each era starts at 1)
+    const eraAdvs = ADVENTURES.filter(a => a.era_id === adv.era_id).sort((a, b) => a.order_by - b.order_by);
+    const eraOrder = eraAdvs.findIndex(a => a.readable_id === adv.readable_id) + 1;
+
+    // 4. Upsert
     const payload = {
       readable_id: adv.readable_id,
       era_id: adv.era_id,
       adventure_title: adv.adventure_title,
       adventure_description: adv.adventure_description,
-      order_by: adv.order_by,
+      order_by: eraOrder,
       timeline: adv.timeline,
       adv_design: adv.adv_design,
       icon_url: adv.icon_url,
